@@ -32,16 +32,17 @@ class Cell:
             raise ZeroDivisionError
         return Cell(self.slotcount // other.slotcount)
 
-    def make_order(self, colums):
-        __n = self.slotcount // colums
-        __countappendix = self.slotcount % colums
-        __row = '*'*colums + '\n'
+    def make_order(self, columns):
+        __n = self.slotcount // columns
+        __countappendix = self.slotcount % columns
+        __row = '*'*columns + '\n'
         __appendix = '*'*__countappendix
+        if(__countappendix>0): return __row*__n + __appendix
         return (__row*__n + __appendix)[0:-1]
 
 cell1 = Cell(15)
 cell2 = Cell(5)
-print((cell1 + cell2).make_order(5))
-print((cell1 - cell2).make_order(5))
-print((cell1 / cell2).make_order(5))
+print((cell1 + cell2).make_order(7) + '\n')
+print((cell1 - cell2).make_order(3)+ '\n')
+print((cell1 / cell2).make_order(5)+ '\n')
 print((cell1 * cell2).make_order(25))
