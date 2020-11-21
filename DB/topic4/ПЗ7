@@ -1,0 +1,39 @@
+/*
+Составьте список пользователей users, которые осуществили хотя бы один заказ orders в интернет магазине.
+Вариант с group by и inner join
+*/
+/*SELECT users.name, users.birthday_at
+FROM users
+INNER JOIN
+orders
+ON 
+ orders.user_id = users.id
+ GROUP BY 
+ users.id;*/
+ /*
+ Вариант c distinct и left join
+ */
+/* SELECT DISTINCT orders.user_id, users.name, users.birthday_at
+ FROM orders
+ LEFT JOIN 
+ users
+ on
+ users.id = orders.user_id;
+ */
+ /*
+ Выведите список товаров products и разделов catalogs, который соответствует товару.
+ */
+ /*SELECT products.name, products.price, catalogs.name
+ FROM products
+ LEFT JOIN catalogs
+ ON products.catalog_id = catalogs.id
+ */
+ 
+ /*
+ Пусть имеется таблица рейсов flights (id, from, to) и таблица городов cities (label, name). Поля from, to и label содержат английские названия городов, поле name — русское. Выведите список рейсов flights с русскими названиями городов.
+ */
+ 
+SELECT 
+	(SELECT cities.name FROM cities WHERE cities.label LIKE flights.from) AS `from`,
+    (SELECT cities.name FROM cities WHERE cities.label LIKE flights.to) AS `to`
+FROM flights
