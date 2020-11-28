@@ -1,0 +1,92 @@
+/*
+В базе данных shop и sample присутствуют одни и те же таблицы, учебной базы данных.
+Переместите запись id = 1 из таблицы shop.users в таблицу sample.users. Используйте транзакции.
+*/ 
+
+SELECT * FROM shop.users WHERE id = 1;
+START TRANSACTION;
+INSERT INTO sample.users SELECT * FROM shop.users WHERE id = 1;
+COMMIT;
+SELECT * FROM shop.users WHERE id = 1;
+
+/*
+Создайте представление, которое выводит название name товарной позиции 
+из таблицы products и соответствующее название каталога name из таблицы catalogs.
+*/
+
+CREATE OR REPLACE VIEW proddescriptions(prod_name, cat_name) AS
+SELECT p.name, cat.name
+FROM products AS p
+LEFT JOIN catalogs AS cat 
+ON p.catalog_id = cat.id;
+SELECT * FROM proddescriptions;
+
+
+/*
+(по желанию) Пусть имеется любая таблица с календарным полем created_at. 
+Создайте запрос, который удаляет устаревшие записи из таблицы, оставляя только 5 самых свежих записей.
+*/
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM users
+WHERE created_at NOT IN (
+		SELECT * FROM (SELECT created_at
+		FROM users
+		ORDER BY created_at DESC
+		LIMIT 5) as crttabl
+) ORDER BY created_at DESC;
+
+
+DROP PROCEDURE IF EXISTS hello;
+delimiter //
+CREATE PROCEDURE hello()
+BEGIN
+	CASE 
+		WHEN CURTIME() BETWEEN '06:00:00' AND '12:00:00' THEN
+			SELECT 'Доброе утро';
+		WHEN CURTIME() BETWEEN '12:00:00' AND '18:00:00' THEN
+			SELECT 'Добрый день';
+		WHEN CURTIME() BETWEEN '18:00:00' AND '00:00:00' THEN
+			SELECT 'Добрый вечер';
+		ELSE
+			SELECT 'Доброй ночи';
+	END CASE;
+END //
+delimiter ;
+
+CALL hello();
+
+
+DROP TRIGGER IF EXISTS nullRestrictedTrigger;
+delimiter //
+CREATE TRIGGER nullRestrictedTrigger BEFORE INSERT ON products
+FOR EACH ROW
+BEGIN
+	IF(ISNULL(NEW.name) AND ISNULL(NEW.description)) THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Запрещено вставлять null в оба поля!';
+	END IF;
+END //
+delimiter ;
+
+DROP FUNCTION IF EXISTS fib;
+delimiter //
+CREATE FUNCTION fib(fornum INT)
+RETURNS INT DETERMINISTIC
+BEGIN
+  DECLARE indexer INT DEFAULT 1;
+  DECLARE prevval INT DEFAULT 0;
+  DECLARE qurval INT DEFAULT 1;
+  DECLARE tmp INT;
+  IF(fornum < 0) THEN RETURN prevval; END IF;
+  IF(fornum = 0) THEN RETURN prevval; END IF;
+  IF(fornum = 1) THEN RETURN qurval; END IF;
+
+  WHILE indexer < fornum DO
+    SET indexer = indexer + 1;
+    set tmp = qurval;
+    set qurval = prevval + qurval;
+    set prevval = tmp;
+  END WHILE;
+  return qurval;
+END;//
+delimiter ;
+SELECT fib(6)
